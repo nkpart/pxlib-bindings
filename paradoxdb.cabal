@@ -3,21 +3,22 @@
 
 name:                paradoxdb
 version:             0.1.0.0
--- synopsis:
--- description:
--- license:
-license-file:        LICENSE
 author:              Nick Partridge
 maintainer:          nkpart@gmail.com
 -- copyright:
 -- category:
 build-type:          Simple
-build-tools: c2hs
 -- extra-source-files:
 cabal-version:       >=1.10
 
 library
-  -- exposed-modules:
+  include-dirs: ../include
+  includes: paradox.h
+  extra-lib-dirs: ../src/.libs
+  extra-libraries: px intl
+  exposed-modules:
+    Paradox
+  build-tools: c2hs
   -- other-modules:
   -- other-extensions:
   build-depends:       base >=4.7 && <4.8
