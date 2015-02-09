@@ -105,12 +105,9 @@ instance Storable PXVal where
 pxval_t ** PX_retrieve_record(pxdoc_t *pxdoc, int recno);
 -}
 
-{-
-void PX_close(pxdoc_t *pxdoc);
-void PX_delete(pxdoc_t *pxdoc);
-int PX_pack(pxdoc_t *pxdoc);
--}
-
+{#fun PX_close as ^ { `PXDocPtr' } -> `()' #}
+{#fun PX_delete as ^ { `PXDocPtr' } -> `()' #}
+{#fun PX_pack as ^ { `PXDocPtr' } -> `Int' #}
 {#fun PX_get_fields as ^ { `PXDocPtr' } -> `PXFieldPtr' #}
 {#fun PX_get_field as ^ { `PXDocPtr', `Int' } -> `PXFieldPtr' #}
 {#fun PX_get_num_fields as ^ { `PXDocPtr' } -> `Int' #}
@@ -125,16 +122,6 @@ int PX_set_targetencoding(pxdoc_t *pxdoc, const char *encoding);
 int PX_set_inputencoding(pxdoc_t *pxdoc, const char *encoding);
 int PX_set_tablename(pxdoc_t *pxdoc, const char *tablename);
 /* Data conversion functions */
-/* Functions to read data from a record */
-int PX_get_data_alpha(pxdoc_t *pxdoc, char *data, int len, char **value);
-int PX_get_data_bytes(pxdoc_t *pxdoc, char *data, int len, char **value);
-int PX_get_data_double(pxdoc_t *pxdoc, char *data, int len, double *value);
-int PX_get_data_long(pxdoc_t *pxdoc, char *data, int len, long *value);
-int PX_get_data_short(pxdoc_t *pxdoc, char *data, int len, short int *value);
-int PX_get_data_byte(pxdoc_t *pxdoc, char *data, int len, char *value);
-int PX_get_data_bcd(pxdoc_t *pxdoc, unsigned char *data, int len, char **value);
-int PX_get_data_blob(pxdoc_t *pxdoc, const char *data, int len, int *mod, int *blobsize, char **value);
-int PX_get_data_graphic(pxdoc_t *pxdoc, const char *data, int len, int *mod, int *blobsize, char **value);
 /* Funktion to add data to a record */
 void PX_put_data_alpha(pxdoc_t *pxdoc, char *data, int len, char *value);
 void PX_put_data_bytes(pxdoc_t *pxdoc, char *data, int len, char *value);
@@ -187,10 +174,19 @@ int PX_read_primary_index(pxdoc_t *pindex);
 int PX_add_primary_index(pxdoc_t *pxdoc, pxdoc_t *pindex);
 -}
 
--- Deprecate
+-- Deprecated
 {-
 char * PX_get_record(pxdoc_t *pxdoc, int recno, char *data);
 char * PX_get_record2(pxdoc_t *pxdoc, int recno, char *data, int *deleted, pxdatablockinfo_t *pxdbinfo);
+int PX_get_data_alpha(pxdoc_t *pxdoc, char *data, int len, char **value);
+int PX_get_data_bytes(pxdoc_t *pxdoc, char *data, int len, char **value);
+int PX_get_data_double(pxdoc_t *pxdoc, char *data, int len, double *value);
+int PX_get_data_long(pxdoc_t *pxdoc, char *data, int len, long *value);
+int PX_get_data_short(pxdoc_t *pxdoc, char *data, int len, short int *value);
+int PX_get_data_byte(pxdoc_t *pxdoc, char *data, int len, char *value);
+int PX_get_data_bcd(pxdoc_t *pxdoc, unsigned char *data, int len, char **value);
+int PX_get_data_blob(pxdoc_t *pxdoc, const char *data, int len, int *mod, int *blobsize, char **value);
+int PX_get_data_graphic(pxdoc_t *pxdoc, const char *data, int len, int *mod, int *blobsize, char **value);
 -}
 
 
