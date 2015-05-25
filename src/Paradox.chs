@@ -56,6 +56,7 @@ data PXValValue = LVal CLong | DVal CDouble | Str CString CInt deriving (Eq, Sho
 
 -- The destruction of PXVal is defined here: http://pxlib.sourceforge.net/documentation.php?manpage=PX_retrieve_record
 -- "The paradox field types pxfShort, pxfLong, pxfDate, pxfTime, pxfLogical, and pxfAutoInc are returned as long int values. pxfTimestamp, pxfNumber, and pxfCurrency are returned as double values and all remaining paradox field types are stored as strings with the length in value.len"
+
 instance Storable PXVal where
   alignment _ = alignment (undefined :: CDouble)
   sizeOf _ = {#sizeof pxval_t#}
@@ -63,7 +64,6 @@ instance Storable PXVal where
                doubleType = DVal <$> {#get pxval_t.value.dval #} p
                stringType = Str <$> {#get pxval_t.value.str.val #} p <*> {#get pxval_t.value.str.len #} p
    in
-
     do
     v <- {#get pxval_t.isnull #} p
     case v of
@@ -113,6 +113,7 @@ pxval_t ** PX_retrieve_record(pxdoc_t *pxdoc, int recno);
 {#fun PX_get_num_fields as ^ { `PXDocPtr' } -> `Int' #}
 {#fun PX_get_num_records as ^ { `PXDocPtr' } -> `Int' #}
 {#fun PX_get_recordsize as ^ { `PXDocPtr' } -> `Int' #}
+
 {-
 int PX_set_parameter(pxdoc_t *pxdoc, const char *name, const char *value);
 int PX_get_parameter(pxdoc_t *pxdoc, const char *name, char **value);
@@ -139,7 +140,6 @@ pxval_t* PX_make_timestamp(pxdoc_t *pxdoc, int year, int month, int day, int hou
 char * PX_timestamp2string(pxdoc_t *pxdoc, double value, const char *format);
 char * PX_time2string(pxdoc_t *pxdoc, long value, const char *format);
 char * PX_date2string(pxdoc_t *pxdoc, long value, const char *format);
-char * PX_strdup(pxdoc_t *pxdoc, const char *str);
         -}
 
 -- These are functions I'm ignoring for now
@@ -188,16 +188,3 @@ int PX_get_data_bcd(pxdoc_t *pxdoc, unsigned char *data, int len, char **value);
 int PX_get_data_blob(pxdoc_t *pxdoc, const char *data, int len, int *mod, int *blobsize, char **value);
 int PX_get_data_graphic(pxdoc_t *pxdoc, const char *data, int len, int *mod, int *blobsize, char **value);
 -}
-
-
-example = do
-  doc <- pXNew
-  pXOpenFile doc "cube1_1data1.DB"
-  numFields <- pXGetNumFields doc
-  print =<< peekArray numFields =<< pXGetFields doc
-  numRecords <- pXGetNumRecords doc
-  record <- pXRetrieveRecord doc 3
-  fields <- peekArray numFields record
-  print =<< mapM peek fields
-  putStrLn "Done"
-  return ()
