@@ -6,8 +6,11 @@ import Foreign.C
 import Foreign.C.String
 import Control.Applicative
 import Foreign.Ptr
+import Control.DeepSeq
 import Foreign.Marshal.Array
 import Foreign.Storable
+
+import Debug.Trace
 
 {#fun pure PX_get_majorversion as ^ {  } -> `Int' #}
 {#fun pure PX_get_minorversion as ^ {  } -> `Int' #}
@@ -21,19 +24,21 @@ data PXDoc
 {#fun PX_new as ^ { } -> `PXDocPtr' #}
 {#fun PX_open_file as ^ { `PXDocPtr', `String' } -> `Int' #}
 
-data PXField = PXField CString CChar CInt CInt deriving (Eq, Show)
+data PXField = PXField !String !CChar !CInt !CInt deriving (Eq, Show)
 {#pointer *pxfield_t as PXFieldPtr -> PXField#}
 
+
 instance Storable PXField where
-  alignment _ = alignment (undefined :: CDouble)
+
+  alignment _ = {#alignof pxfield_t#}
   sizeOf _ = {#sizeof pxfield_t#}
-  peek p =
-    PXField <$> ({#get pxfield_t.px_fname #} p)
-            <*> ({#get pxfield_t.px_ftype #} p)
-            <*> ({#get pxfield_t.px_flen #} p)
-            <*> ({#get pxfield_t.px_fdc #} p)
+  peek p =trace "peek" $
+    PXField <$> (({#get pxfield_t.px_fname #} p) >>= (\v' -> do; v <- if (nullPtr == v') then return "" else peekCString v'; return $!! v))
+          <*> ({#get pxfield_t.px_ftype #} p)
+          <*> ({#get pxfield_t.px_flen #} p)
+          <*> ({#get pxfield_t.px_fdc #} p)
   poke p (PXField a b c d) = do
-    {#set pxfield_t.px_fname #} p a
+    withCString a $ {#set pxfield_t.px_fname #} p
     {#set pxfield_t.px_ftype #} p (b)
     {#set pxfield_t.px_flen #}  p (c)
     {#set pxfield_t.px_fdc #}   p (d)
@@ -44,7 +49,7 @@ instance Storable PXField where
 {-
 int PX_put_recordn(pxdoc_t *pxdoc, char *data, int recpos);
 int PX_put_record(pxdoc_t *pxdoc, char *data);
-int PX_insert_record(pxdoc_t *pxdoc, pxval_t **dataptr);
+gnt PX_insert_record(pxdoc_t *pxdoc, pxval_t **dataptr);
 int PX_update_record(pxdoc_t *pxdoc, pxval_t **dataptr, int recno);
 int PX_delete_record(pxdoc_t *pxdoc, int recno);
 -}
